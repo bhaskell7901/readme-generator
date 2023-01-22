@@ -38,7 +38,6 @@ function init() {
     inquirer
         .prompt(questions)
         .then( (answers) => {
-            console.log(answers);
             writeToFile("README-" + answers.projectTitle.split(' ').join("-") + ".md", answers);
         })
         .catch( (err) => {
@@ -53,7 +52,6 @@ function init() {
         .then( () => {
             return;
         });
-    // writeToFile("README-" + answerObj.projectTitle.split(' ').join("-") + ".md", answerObj);
     // console.log(generateMarkdown.generateMarkdown(answerObj));
     
 }

@@ -48,7 +48,7 @@ const licensesMap = new Map();
     licensesMap.set("zLib License", "https://opensource.org/licenses/Zlib");
     licensesMap.set(noLicenseText, "");
 
-  // get the names as a list for inquirer questionaire
+// get the names as a list for inquirer questionaire
 const licenses = getLicenseNames(); 
 
 
