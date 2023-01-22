@@ -92,7 +92,7 @@ const questions = [
   }
   ,{   // License options
       type: "rawlist",
-      message: "Select a license or enter a different one:",
+      message: "Select a license or \"" + noLicenseText + "\" to omit:",
       name: "license",
       default: 1,
       pageSize: 12,
