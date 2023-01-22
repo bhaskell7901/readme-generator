@@ -10,7 +10,7 @@ const answerObj = {
     projectDesc: "It's very descriptive.",
     installationDesc: 'It easy to install',
     usageDesc: "It's very user friendly.",
-    license: "Boost Software License 1.0",
+    license: "No License Included",
     testDesc: "It's not testable.",
     qEmail: "gmaila@gmail.com",
     qOwner: "bhaskell7901",
@@ -25,29 +25,36 @@ const answerObj = {
 inquirer.registerPrompt('recursive', require('inquirer-recursive'));
 
 // Create a function to write README file
-function writeToFile(fileName, data) {}
+function writeToFile(fileName, data) {
+    fs.writeFile('./readme-files/' + fileName, generateMarkdown.generateMarkdown(data), (err) => {
+        if(err){
+            console.log(err);
+        }
+    });
+}
 
 // Create a function to initialize app
 function init() {
-    // inquirer
-    //     .prompt(questions)
-    //     .then( (answers) => {
-    //         console.log(answers);
-
-    //     })
-    //     .catch( (err) => {
-    //         if (err.isTtyError) {
-    //             console.log("The prompt couldn't be rendered in this environment");
-    //             console.log(err);
-    //         } else {
-    //             console.log("Something seriously went wrong:");
-    //             console.log(err);
-    //         }
-    //     })
-    //     .then( () => {
-    //         return;
-    //     });
-    console.log(generateMarkdown.generateMarkdown(answerObj));
+    inquirer
+        .prompt(questions)
+        .then( (answers) => {
+            console.log(answers);
+            writeToFile("README-" + answers.projectTitle.split(' ').join("-") + ".md", answers);
+        })
+        .catch( (err) => {
+            if (err.isTtyError) {
+                console.log("The prompt couldn't be rendered in this environment");
+                console.log(err);
+            } else {
+                console.log("Something seriously went wrong:");
+                console.log(err);
+            }
+        })
+        .then( () => {
+            return;
+        });
+    // writeToFile("README-" + answerObj.projectTitle.split(' ').join("-") + ".md", answerObj);
+    // console.log(generateMarkdown.generateMarkdown(answerObj));
     
 }
 
