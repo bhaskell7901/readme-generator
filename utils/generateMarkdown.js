@@ -43,6 +43,7 @@ const licensesMap = new Map();
     licensesMap.set("University of Illinois/NCSA Open Source License", "");
     licensesMap.set("The Unlicense", "");
     licensesMap.set("zLib License", "https://opensource.org/licenses/Zlib");
+    licensesMap.set("No License Included", "");
 
   // get the names as a list for inquirer questionaire
 const licenses = getLicenseNames(); 
@@ -70,9 +71,10 @@ const questions = [
       name: "usageDesc"
   }
   ,{   // License options
-      type: "list",
-      message: "What license will you use?",
+      type: "rawlist",
+      message: "Select a license or enter a different one:",
       name: "license",
+      default: 1,
       pageSize: 12,
       choices: [...licenses]
 
@@ -188,7 +190,7 @@ function getLicenseNames(){
 // TODO: Create a function that returns a license badge based on which license is passed in
 // If there is no license, return an empty string
 function renderLicenseBadge(license) {
-  return `[![${license}](${renderLicenseLink(license)})]` + licensesMap.get(license) === "" ? "" + `(${licensesMap.get(license)})`;
+  return `[![${license}](${renderLicenseLink(license)})]${(licensesMap.get(license) === "") ? "" : `(${licensesMap.get(license)})`}`;
 }
 
 // Create a function that returns the license link
