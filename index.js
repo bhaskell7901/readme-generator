@@ -47,40 +47,40 @@ const licenses = licensesMap.keys();
 
 // TODO: Create an array of question's for user input
 const questions = [
-    // {   // Title input
-    //     type: "input",
-    //     message: "What is your project name?",
-    //     name: "projectTitle"
-    // }
-    // ,{   // Description input
-    //     type: "input",
-    //     message: "Describe your project:",
-    //     name: "projectDesc"
-    // }
-    // ,{   // Insatllation input
-    //     type: "input",
-    //     message: "How do you install this software?",
-    //     name: "installationDesc"
-    // }
-    // ,{   // Usage input
-    //     type: "input",
-    //     message: "How do you use this software?",
-    //     name: "usageDesc"
-    // }
-    // ,{   // License options
-    //     type: "list",
-    //     message: "What license will you use?",
-    //     name: "license",
-    //     pageSize: 12,
-    //     choices: [...licenses]
+    {   // Title input
+        type: "input",
+        message: "What is your project name?",
+        name: "projectTitle"
+    }
+    ,{   // Description input
+        type: "input",
+        message: "Describe your project:",
+        name: "projectDesc"
+    }
+    ,{   // Insatllation input
+        type: "input",
+        message: "How do you install this software?",
+        name: "installationDesc"
+    }
+    ,{   // Usage input
+        type: "input",
+        message: "How do you use this software?",
+        name: "usageDesc"
+    }
+    ,{   // License options
+        type: "list",
+        message: "What license will you use?",
+        name: "license",
+        pageSize: 12,
+        choices: [...licenses]
 
-    // }
-    // ,{   // Tests input
-    //     type: "input",
-    //     message: "What test instructions are avialble?",
-    //     name: "testDesc"
-    // }
-    {   // Question input
+    }
+    ,{   // Tests input
+        type: "input",
+        message: "What test instructions are avialble?",
+        name: "testDesc"
+    }
+    ,{   // Question input
         type: "input",
         message: "Enter an email address to handle questions",
         name: "qEmail",
@@ -89,64 +89,90 @@ const questions = [
             var validEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(qEmail);
             if (validEmail) return true;
             else {
-                console.log(" <-- Pleae enter a valid email");
-                return false;
+                return " <-- Pleae enter a valid email";
             }
         }
-    },
-    {   // Question input
+    }
+    ,{   // Question input
         type: "input",
         message: "Who is owning questions for this software (GitHub login)?",
         name: "qOwner",
         default: () => {},
         validate: function (qOwner) {
+            var done = this.async();  // desingating a callback function for inquirer
+
             axios.get("https://api.github.com/users/" + qOwner)
-            .then( (response) =>  {
-                // console.log(response);
-                if( response ) {
-                    // console.log(" <-- response is ok");
-                    // console.log(response);
-                    return true;
-                } else {
-                    // console.log(" <-- Please enter a valid GitHub user");
-                    return " <-- Please enter a valid GitHub user";
-                }
-            })
-            .catch( function (err) {
-                // console.log(err);
-                // console.log(" <-- Could not validate login. Proceed with caution.");
-            })
-            .then( () => {
-                return " <-- Could not validate login. Proceed with caution.";
-            });
-            
-            
-    //         // var validUser = /^[A-Za-z0-9]+(?:[\s-][A-Za-z0-9]+)*$/.test(qOwner);
-    //         // if (validUser){
-    //         //     return true;
-    //         // } else {
-    //         //     console.log(" <-- Please enter a valid GitHub username");
+                .then( (response) =>  {
+                    if( response ) {
+                        done(true);
+                        return;
+                    }
+                })
+                .catch( function (err) {
+                    done(" <-- Not a registered GitHub login. Please add a registered login.");
+                    return;
+                });
         }
     }
+    ,{   // Contributors
+        type: "recursive",
+        message: "Add contributors?",
+        name: "contributors",
+        // default: () => {},
+        prompts: [
+            // {
+            //     type: "input",
+            //     message: "Name?",
+            //     name: "contribName",
+            //     when: function(input, answers){
+            //         return input;
+            //     }
+            // },
+            {
+                type: "input",
+                message: "GitHub login?",
+                name: "gitHubLogin",
+                default: () => {},
+                validate: function (gitHubLogin) {
+                    var done = this.async();  // desingating a callback function for inquirer
 
-//     ,{   // Contributors
-//         type: "recursive",
-//         message: "Add contributors?",
-//         name: "contributors",
-//         default: () => {},
-//         prompts: [
-//             {
-//                 type: "input",
-//                 message: "Name?",
-//                 name: "contribName"
-//             }
-//             ,{
-//                 type: "input",
-//                 message: "GitHub login?",
-//                 name: "gitHubLogin"
-//             }
-//         ]
-//     }
+                    axios.get("https://api.github.com/users/" + gitHubLogin)
+                    .then( (response) =>  {
+                        if( response ) {
+                            done(true);
+                            return;
+                        }
+                    })
+                    .catch( function (err) {
+                        console.log("Validate err");
+                        done(" <-- Not a registered GitHub login. Please add a registered login.");
+                        return;
+                    });
+                
+                },
+                filter: function(input, answer){
+                    var done = this.async();  // desingating a callback function for inquirer
+
+                    axios.get("https://api.github.com/users/" + input)
+                    .then( (response) =>  {
+                        if( response ) {
+                            console.log(answer);
+                            answer['gitHubLogin'] = input + "-->" + response.data.name;
+                            done( answer );
+                            return;
+                        }
+                    })
+                    .catch( function (err) {
+                        console.log("Filter err");
+                        done(" <-- Not a registered GitHub login. Please add a registered login.");
+                        return;
+                    });
+                    // console.log(answer);
+                    // return input;
+                }
+            }
+        ]
+    }
 ];
 
 // TODO: Create a function to write README file
@@ -167,46 +193,10 @@ function init() {
                 console.log("Something seriously went wrong:");
                 console.log(err);
             }
+        })
+        .then( () => {
+            return;
         });
-    // qOwner = "bhaskell790";
-    
-    // axios.get("https://api.github.com/users/" + qOwner)
-    //         .then( function (response) {
-    //             // console.log(response);
-    //             if( response ) {
-    //                 // console.log(" <-- response is ok");
-    //                 console.log(response.status);
-    //                 return true;
-    //             } else {
-    //                 console.log(" <-- Please enter a valid GitHub user");
-    //                 return false;
-    //             }
-    //         })
-    //         .catch( function (error) {
-    //             console.log(error.response.status);  //res.IncomingMessage.statusCode
-    //             console.log(" <-- Could not validate login. Proceed with caution.");
-    //         })
-    //         .then( () => {
-    //             return true;
-    //         });
-    
-    
-    
-    
-    // fetch("https://api.github.com/users/" + qOwner)
-    //         .then( (response) => {
-    //             if( response.ok ) {
-    //                 console.log(response.ok);
-    //                 return true;
-    //             } else {
-    //                 console.log(" <-- Pleaes enter a valid GitHub user");
-    //                 return false;
-    //             }
-    //         })
-    //         .catch( () => {
-    //             console.log(" <-- Could not validate login. Proceed with caution.");
-    //             return false;
-    //         });
 }
 
 // Function call to initialize app
