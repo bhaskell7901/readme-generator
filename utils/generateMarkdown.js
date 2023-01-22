@@ -3,13 +3,16 @@ module.exports = {
   getQuestions
 }
 
-const axios = require('axios');  // for GitHub login validation
+const axios = require('axios');               // for GitHub login validation
+const inputMinLength = 10;                    // min text length input for questions
+const noLicenseText = "No License Included";   // specifies not to include a license
+
 
 // Map of License name to license site (if found) for making
 // badges clickable
 const licensesMap = new Map();
     licensesMap.set("Academic Free License v3.0", "");
-    licensesMap.set("Apache license 2.0", "https://opensource.org/licenses/Apache-2.0)");
+    licensesMap.set("Apache license 2.0", "https://opensource.org/licenses/Apache-2.0");
     licensesMap.set("Artistic license 2.0", "https://opensource.org/licenses/Artistic-2.0");
     licensesMap.set("Boost Software License 1.0", "https://www.boost.org/LICENSE_1_0.txt");
     licensesMap.set("BSD 2-clause \"Simplified\" license", "https://opensource.org/licenses/BSD-2-Clause");
@@ -43,32 +46,49 @@ const licensesMap = new Map();
     licensesMap.set("University of Illinois/NCSA Open Source License", "");
     licensesMap.set("The Unlicense", "");
     licensesMap.set("zLib License", "https://opensource.org/licenses/Zlib");
-    licensesMap.set("No License Included", "");
+    licensesMap.set(noLicenseText, "");
 
   // get the names as a list for inquirer questionaire
 const licenses = getLicenseNames(); 
+
 
 // Create an array of question's for user input
 const questions = [
   {   // Title input
       type: "input",
       message: "What is your project name?",
-      name: "projectTitle"
+      name: "projectTitle",
+      validate: (input) => {
+        if(input.length < inputMinLength) return "Please enter a meaningful description.";
+        else return true;
+      }
   }
   ,{   // Description input
       type: "input",
       message: "Describe your project:",
-      name: "projectDesc"
+      name: "projectDesc",
+      validate: (input) => {
+        if(input.length < inputMinLength) return "Please enter a meaningful description.";
+        else return true;
+      }
   }
   ,{   // Insatllation input
       type: "input",
       message: "How do you install this software?",
-      name: "installationDesc"
+      name: "installationDesc",
+      validate: (input) => {
+        if(input.length < inputMinLength) return "Please enter a meaningful description.";
+        else return true;
+      }
   }
   ,{   // Usage input
       type: "input",
       message: "How do you use this software?",
-      name: "usageDesc"
+      name: "usageDesc",
+      validate: (input) => {
+        if(input.length < inputMinLength) return "Please enter a meaningful description.";
+        else return true;
+      }
   }
   ,{   // License options
       type: "rawlist",
@@ -93,7 +113,7 @@ const questions = [
           var validEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(qEmail);
           if (validEmail) return true;
           else {
-              return " <-- Pleae enter a valid email";
+              return " <-- Please enter a valid email";
           }
       }
   }
@@ -187,37 +207,76 @@ function getLicenseNames(){
   return licensesMap.keys();
 }
 
-// TODO: Create a function that returns a license badge based on which license is passed in
+function getContributing(data){
+  const gHubUrlPreface = "https://github.com/";
+  var str = "";
+
+  str = `* ${getGitHubMkdwnBioPageUrl(data.qOwner)}`;
+
+  if( data.contributors.length > 0 ){
+    for( var i = 0; i < data.contributors.length; ++i ){
+      str += `\n* ${getGitHubMkdwnBioPageUrl(data.contributors[i].gitHubLogin)}`;
+    }
+  }
+  return str;
+}
+
+function getGitHubMkdwnBioPageUrl(gitHubLogin){
+  return `[${gitHubLogin}](${encodeURI("https://github.com/" + gitHubLogin)})`;
+}
+
+// Create a function that returns a license badge based on which license is passed in
 // If there is no license, return an empty string
 function renderLicenseBadge(license) {
-  return `[![${license}](${renderLicenseLink(license)})]${(licensesMap.get(license) === "") ? "" : `(${licensesMap.get(license)})`}`;
+  if(license === noLicenseText) return "";
+
+  if(licensesMap.get(license) === "" ){
+    console.log(`![${license}](${renderLicenseLink(license)})`);
+    return `![${license}](${renderLicenseLink(license)})`;
+  } else {
+    return `[![${license}](${renderLicenseLink(license)})](${licensesMap.get(license)})`;
+  }
 }
 
 // Create a function that returns the license link
 // If there is no license, return an empty string
 function renderLicenseLink(license) {
-  return `https://img.shields.io/static/v1?label=License&message=${license}&color=success`;
+  if(license === noLicenseText) return "";
+  else return encodeURI(`https://img.shields.io/static/v1?label=License&message=${license}&color=success`);
 }
 
-// TODO: Create a function that returns the license section of README
+// Create a function that returns the license section of README
 // If there is no license, return an empty string
-function renderLicenseSection(license) {}
+function renderLicenseSection(license) {
+  if(license === noLicenseText) return "";
+  else return `\n## License\n\n${renderLicenseBadge(license)}\n\n${license}\n\n`;
+}
 
-// TODO: Create a function to generate markdown for README
+function renderMailToMarkdownLink(emailAddr, projectName){
+  if(emailAddr){
+    return `[${emailAddr}](${encodeURI('mailto:' + emailAddr + '?subject="' + projectName + ' Questions"')})`;
+  }
+}
+
+
+// Create a function to generate markdown for README
 function generateMarkdown(data) {
+  const badge = renderLicenseBadge(data.license);
+
   return `# ${data.projectTitle}
 
-${data.projectDesc}
+## Description
+${(badge === "") ? "" : badge + '\n\n'}${data.projectDesc}
 
 
 ## Table of Contents
 
+1. [Description](#description)
 1. [Installation](#installation)
-1. [Usage](#Usage)
-1. [License](#License)
-1. [Contributions](#Contributions)
-1. [Tests](#Tests)
-1. [Questions](#Questions)
+1. [Usage](#usage)
+${(badge === "")?"":'1. [License](#license)\n'}1. [Contributing](#contributing)
+1. [Tests](#tests)
+1. [Questions](#questions)
 
 
 ## Installation
@@ -229,14 +288,9 @@ ${data.installationDesc}
 
 ${data.usageDesc}
 
-
-## License
-
-${data.license}
-
-
-## Contributions
-
+${(badge === "") ? "" : renderLicenseSection(data.license)}
+## Contributing
+${getContributing(data)}
 
 
 ## Tests
@@ -245,7 +299,8 @@ ${data.testDesc}
 
 
 ## Questions
+Get to know be better on GitHub --> ${getGitHubMkdwnBioPageUrl(data.qOwner)}
 
-${data.qEmail}
+If you have more questions, please email: ${renderMailToMarkdownLink(data.qEmail, data.projectTitle)}
 `;
 }
