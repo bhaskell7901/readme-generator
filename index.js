@@ -5,22 +5,6 @@ const generateMarkdown = require('./utils/generateMarkdown');
 
 const questions = generateMarkdown.getQuestions();
 
-const answerObj = {
-    projectTitle: 'My Pet Project',
-    projectDesc: "It's very descriptive.",
-    installationDesc: 'It easy to install',
-    usageDesc: "It's very user friendly.",
-    license: "No License Included",
-    testDesc: "It's not testable.",
-    qEmail: "gmaila@gmail.com",
-    qOwner: "bhaskell7901",
-    contributors: [
-        { contribName: 'Theodore Roosevelt', gitHubLogin: 'teddy' },
-        { contribName: 'Franklin D. Roosevelt', gitHubLogin: 'franklin' },
-        { contribName: 'Abraham Lincoln', gitHubLogin: 'lincoln' }
-    ]
-}
-
 // must include to allow looping in questionaire
 inquirer.registerPrompt('recursive', require('inquirer-recursive'));
 
@@ -52,7 +36,6 @@ function init() {
         .then( () => {
             return;
         });
-    // console.log(generateMarkdown.generateMarkdown(answerObj));
     
 }
 
