@@ -2,6 +2,8 @@
 
 Welcome to README Generator!  An App that let you generator your own prefilled README file for a given project.
 
+Checkout the demo video [here](https://drive.google.com/file/d/14O5J9dnzHD5Z7jF-Yi-r1lx3P2pmjWY6/view?usp=sharing)
+
 
 ## Table of Contents
 
