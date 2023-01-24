@@ -19,7 +19,7 @@ It's very descriptive.
 
 ## Installation
 
-Very carefully.
+It installs easily.
 
 
 ## Usage
@@ -35,13 +35,12 @@ MIT
 
 
 ## Contributing
-* [bhaskell7901](https://github.com/bhaskell7901)
-* [teddy](https://github.com/teddy)
+They should contribute when/where they can.
 
 
 ## Tests
 
-There are a lot of tests.
+There are many tests.
 
 
 ## Questions

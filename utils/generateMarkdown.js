@@ -138,65 +138,75 @@ const questions = [
               });
       }
   }
-  ,{   // Contributors
-      type: "recursive",
-      message: "Add contributors?",
-      name: "contributors",
-      default: () => {},
-      prompts: [
-          {
-              type: "input",
-              message: "Name?",
-              name: "contribName"
-          },
-          {
-              type: "input",
-              message: "GitHub login?",
-              name: "gitHubLogin",
-              default: () => {},
-              validate: function (gitHubLogin) {
-                  var done = this.async();  // desingating a callback function for inquirer
-
-                  axios.get("https://api.github.com/users/" + gitHubLogin)
-                  .then( (response) =>  {
-                      if( response ) {
-                          done(true);
-                          return;
-                      }
-                  })
-                  .catch( function (err) {
-                      console.log("Validate err");
-                      done(" <-- Not a registered GitHub login. Please add a registered login.");
-                      return;
-                  });
-              
-              }
-                  // Attempting to use filter to get the input and modify it before
-                  // returning it to inquirer, this would reduce the GitHub API
-                  // calls if 'login' and 'name' could be concatenated in the answer
-              // filter: function(input, answer){
-              //     var done = this.async();  // desingating a callback function for inquirer
-
-              //     axios.get("https://api.github.com/users/" + input)
-              //     .then( (response) =>  {
-              //         if( response ) {
-              //             console.log(answer);
-              //             answer['gitHubLogin'] = input + "-->" + response.data.name;
-              //             done( answer );
-              //             return;
-              //         }
-              //     })
-              //     .catch( function (err) {
-              //         console.log("Filter err");
-              //         done(" <-- Not a registered GitHub login. Please add a registered login.");
-              //         return;
-              //     });
-              //     // console.log(answer);
-              //     // return input;
-              // }
-          }
-      ]
+  ,{
+     // Contributoring
+      type: "input",
+      message: "How should people contribute?",
+      name: "contributing",
+      validate: (input) => {
+        if(input.length < inputMinLength) return "Please enter a meaningful description.";
+        else return true;
+      }
   }
+  // ,{   // Contributors
+  //     type: "recursive",
+  //     message: "Add contributors?",
+  //     name: "contributors",
+  //     default: () => {},
+  //     prompts: [
+  //         {
+  //             type: "input",
+  //             message: "Name?",
+  //             name: "contribName"
+  //         },
+  //         {
+  //             type: "input",
+  //             message: "GitHub login?",
+  //             name: "gitHubLogin",
+  //             default: () => {},
+  //             validate: function (gitHubLogin) {
+  //                 var done = this.async();  // desingating a callback function for inquirer
+
+  //                 axios.get("https://api.github.com/users/" + gitHubLogin)
+  //                 .then( (response) =>  {
+  //                     if( response ) {
+  //                         done(true);
+  //                         return;
+  //                     }
+  //                 })
+  //                 .catch( function (err) {
+  //                     console.log("Validate err");
+  //                     done(" <-- Not a registered GitHub login. Please add a registered login.");
+  //                     return;
+  //                 });
+              
+  //             }
+  //                 // Attempting to use filter to get the input and modify it before
+  //                 // returning it to inquirer, this would reduce the GitHub API
+  //                 // calls if 'login' and 'name' could be concatenated in the answer
+  //             // filter: function(input, answer){
+  //             //     var done = this.async();  // desingating a callback function for inquirer
+
+  //             //     axios.get("https://api.github.com/users/" + input)
+  //             //     .then( (response) =>  {
+  //             //         if( response ) {
+  //             //             console.log(answer);
+  //             //             answer['gitHubLogin'] = input + "-->" + response.data.name;
+  //             //             done( answer );
+  //             //             return;
+  //             //         }
+  //             //     })
+  //             //     .catch( function (err) {
+  //             //         console.log("Filter err");
+  //             //         done(" <-- Not a registered GitHub login. Please add a registered login.");
+  //             //         return;
+  //             //     });
+  //             //     // console.log(answer);
+  //             //     // return input;
+  //             // }
+  //         }
+  //  ]
+  //}
 ];
 
 function getQuestions(){
@@ -207,6 +217,8 @@ function getLicenseNames(){
   return licensesMap.keys();
 }
 
+// This is used when contributors are added
+// Not needed for this project
 function getContributing(data){
   const gHubUrlPreface = "https://github.com/";
   var str = "";
@@ -290,7 +302,7 @@ ${data.usageDesc}
 
 ${(badge === "") ? "" : renderLicenseSection(data.license)}
 ## Contributing
-${getContributing(data)}
+${data.contributing}
 
 
 ## Tests
